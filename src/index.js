@@ -1,26 +1,36 @@
 import { fetchImg, page, perPage, resetPage } from './js/fetchImages';
 import Notiflix from 'notiflix';
-
+import SimpleLightbox from "simplelightbox";
+import "simplelightbox/dist/simple-lightbox.min.css";
 
 
 const refs = {
   formSearch: document.querySelector('.search-form'),
   gallery: document.querySelector('.gallery'),
   //inputRef:  formSearch.querySelector("input"),
-  buttonRef: document.querySelector("load-more"),
+  buttonRef: document.querySelector(".load-more"),
 };
 
+buttonHidden();
 
-//inputRef.addEventListener('input', onInput);
+const optionsSL = {
+    overlayOpacity: 0.5,
+    captionsData: "alt",
+    captionDelay: 250,
+};
+ 
+let simpleLightbox = new SimpleLightbox('.photo-card a', optionsSL);
+
 refs.formSearch.addEventListener('submit', onSearchBtn);
+refs.buttonRef.addEventListener('click', onClickNexpPage);
 
 async function onSearchBtn(e) {
   e.preventDefault();
   let searchValue = e.currentTarget.elements.searchQuery.value.trim();
 
     if (searchValue === '') {
-         clearAll();
-        // buttonHidden();
+      clearAll();
+      
         Notiflix.Notify.info('You cannot search by empty field, try again.');
          return;
      } else {
@@ -29,25 +39,33 @@ async function onSearchBtn(e) {
              const images = await fetchImg(searchValue);
              if (images.hits < 1) {
               refs.formSearch.reset();
-                 clearAll();
-              //   buttonHidden();
+               clearAll();
+                 
                  Notiflix.Notify.failure('Sorry, there are no images matching your search query. Please try again.');
              } else {
               refs.formSearch.reset();
-                 createImage(images.hits);
-              //   simpleLightbox = new SimpleLightbox(".gallery a", optionsSL).refresh();
-             //    buttonUnHidden();
+               createImage(images.hits);
+               
+               buttonShow();
+               simpleLightbox.refresh();
+               
                 
                  Notiflix.Notify.success(`Hooray! We found ${images.totalHits} images.`);
            };
         } catch (error) {
              clearAll();
-            //buttonHidden();
+          buttonHidden();
             Notiflix.Report.info('Oh', 'Something get wrong, please try again', 'Okay');
          };
      };
 
   }
+
+async function onClickNexpPage(e) {
+
+}
+
+
 
 
 function createImage(data) {
@@ -80,12 +98,21 @@ function createImage(data) {
     .join('');
    
   refs.gallery.insertAdjacentHTML('beforeend', markupPost);
-  //lightbox.refresh();
+  simpleLightbox.refresh();
   // smoothScroll();
 }
 
 
+
 function clearAll() {
     refs.gallery.innerHTML = '';
+};
+
+function buttonShow() {
+  refs.buttonRef.classList.remove('visually-hidden');
+};
+
+function buttonHidden() {
+    refs.buttonRef.classList.add("visually-hidden");
 };
 
