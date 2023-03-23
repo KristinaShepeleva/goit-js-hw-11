@@ -19,7 +19,7 @@ export async function fetchImg(searchValue) {
         //console.log(images);
         //console.log(images.data);
         //console.log(images.data.hits);
-        return images.data.hits;
+        return images.data;
     } catch (error) {
     console.error(error);
    }
