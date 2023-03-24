@@ -7,78 +7,67 @@ import "simplelightbox/dist/simple-lightbox.min.css";
 const refs = {
   formSearch: document.querySelector('.search-form'),
   gallery: document.querySelector('.gallery'),
-  //inputRef:  formSearch.querySelector("input"),
   buttonRef: document.querySelector(".load-more"),
 };
 
 buttonHidden();
 
-const optionsSL = {
+refs.formSearch.addEventListener('submit', onSearchBtn);
+refs.buttonRef.addEventListener('click', onClickNexpPage);
+ 
+let simpleLightbox = new SimpleLightbox('.photo-card a', {
     overlayOpacity: 0.5,
     captionsData: "alt",
     captionDelay: 250,
-};
- 
-let simpleLightbox = new SimpleLightbox('.photo-card a', optionsSL);
-
-refs.formSearch.addEventListener('submit', onSearchBtn);
-refs.buttonRef.addEventListener('click', onClickNexpPage);
+});
 
 let searchValue = '';
 
 async function onSearchBtn(e) {
-  clearAll();
   e.preventDefault();
+  clearAll();
   searchValue = e.currentTarget.elements.searchQuery.value.trim();
 
     if (searchValue === '') {
       clearAll();
-      
-        Notiflix.Notify.info('You cannot search by empty field, try again.');
-         return;
-     } else {
-         try {
-             resetPage();
-             const images = await fetchImg(searchValue);
-             if (images.hits < 1) {
-              refs.formSearch.reset();
+      Notiflix.Notify.info('You cannot search by empty field, try again.');
+      return;
+    } else {
+        try {
+          resetPage();
+          const images = await fetchImg(searchValue);
+          //console.log(images);
+            if (images.hits < 1) {
+               refs.formSearch.reset();
                clearAll();
-                 
-                 Notiflix.Notify.failure('Sorry, there are no images matching your search query. Please try again.');
-             } else {
+               Notiflix.Notify.failure('Sorry, there are no images matching your search query. Please try again.');
+            } else {
               refs.formSearch.reset();
                createImage(images.hits);
-               
                buttonShow();
                simpleLightbox.refresh();
-               
-                
-                 Notiflix.Notify.success(`Hooray! We found ${images.totalHits} images.`);
-           };
+               Notiflix.Notify.success(`Hooray! We found ${images.totalHits} images.`);
+            };
         } catch (error) {
-             clearAll();
-          buttonHidden();
+            clearAll();
+            buttonHidden();
             Notiflix.Report.info('Oh', 'Something get wrong, please try again', 'Okay');
-         };
+        };
      };
-  }
+}
 
-
-
-async function onClickNexpPage() {
-    
+async function onClickNexpPage() {   
   try {
-      console.log(await fetchImg(searchValue));
-    
-    const images = await fetchImg(searchValue);
-      refs.gallery.insertAdjacentHTML('beforeend', createImage(images.hits));
+      const images = await fetchImg(searchValue);
+    //console.log(images);
+      createImage(images.hits)
       smoothScroll();
       simpleLightbox.refresh();
         
     } catch (error) {
        clearAll();
-        buttonHidden();
-        Notiflix.Report.info('Oh', 'Something get wrong, please try again', 'Okay');
+       buttonHidden();
+       Notiflix.Report.info('Oh', 'Something get wrong, please try again', 'Okay');
     };
 };
 
@@ -94,24 +83,21 @@ function createImage(images) {
         comments,
         downloads,
       }) => {
-        return `
-                  <div class="photo-card">
+        return `<div class="photo-card">
                   <a class="gallery__item" href="${largeImageURL}">
                       <img class="gallery__image" src="${webformatURL}" alt="${tags}" loading="lazy" />
-                      </a>
+                  </a>
                       <div class="info">
                         <p class="info-item"><b>Likes</b> ${likes}</p>
                         <p class="info-item"><b>Views</b> ${views}</p>
                         <p class="info-item"><b>Comments</b> ${comments}</p>
                         <p class="info-item"><b>Downloads</b> ${downloads}</p>
                       </div>
-                    </div>
-                 `;
+                </div>`;
       }
     )
     .join('');
-   
-  refs.gallery.insertAdjacentHTML('beforeend', markupPost);
+  refs.gallery.insertAdjacentHTML('beforeend', markupPost); 
 }
 
 function clearAll() {
@@ -130,7 +116,7 @@ function smoothScroll() {
     const { height: cardHeight } =
         document.querySelector(".photo-card").firstElementChild.getBoundingClientRect();
     window.scrollBy({
-    top: cardHeight * 2,
+    top: cardHeight * 3,
     behavior: "smooth",
 });
 };
