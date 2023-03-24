@@ -24,9 +24,12 @@ let simpleLightbox = new SimpleLightbox('.photo-card a', optionsSL);
 refs.formSearch.addEventListener('submit', onSearchBtn);
 refs.buttonRef.addEventListener('click', onClickNexpPage);
 
+let searchValue = '';
+
 async function onSearchBtn(e) {
+  clearAll();
   e.preventDefault();
-  let searchValue = e.currentTarget.elements.searchQuery.value.trim();
+  searchValue = e.currentTarget.elements.searchQuery.value.trim();
 
     if (searchValue === '') {
       clearAll();
@@ -58,18 +61,29 @@ async function onSearchBtn(e) {
             Notiflix.Report.info('Oh', 'Something get wrong, please try again', 'Okay');
          };
      };
-
   }
 
-async function onClickNexpPage(e) {
-
-}
 
 
+async function onClickNexpPage() {
+    
+  try {
+      console.log(await fetchImg(searchValue));
+    
+    const images = await fetchImg(searchValue);
+      refs.gallery.insertAdjacentHTML('beforeend', createImage(images.hits));
+      smoothScroll();
+      simpleLightbox.refresh();
+        
+    } catch (error) {
+       clearAll();
+        buttonHidden();
+        Notiflix.Report.info('Oh', 'Something get wrong, please try again', 'Okay');
+    };
+};
 
-
-function createImage(data) {
-  let markupPost = data
+function createImage(images) {
+  let markupPost = images
     .map(
       ({
         largeImageURL,
@@ -98,11 +112,7 @@ function createImage(data) {
     .join('');
    
   refs.gallery.insertAdjacentHTML('beforeend', markupPost);
-  simpleLightbox.refresh();
-  // smoothScroll();
 }
-
-
 
 function clearAll() {
     refs.gallery.innerHTML = '';
@@ -114,5 +124,14 @@ function buttonShow() {
 
 function buttonHidden() {
     refs.buttonRef.classList.add("visually-hidden");
+};
+
+function smoothScroll() {
+    const { height: cardHeight } =
+        document.querySelector(".photo-card").firstElementChild.getBoundingClientRect();
+    window.scrollBy({
+    top: cardHeight * 2,
+    behavior: "smooth",
+});
 };
 
