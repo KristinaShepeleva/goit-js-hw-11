@@ -31,22 +31,30 @@ async function onSearchBtn(e) {
     if (searchValue === '') {
       clearAll();
       Notiflix.Notify.info('You cannot search by empty field, try again.');
+      buttonHidden()
       return;
     } else {
         try {
           resetPage();
           const images = await fetchImg(searchValue);
-          //console.log(images);
-            if (images.hits < 1) {
+          console.log(page);
+           if (images.hits.length < 1) {
                refs.formSearch.reset();
                clearAll();
-               Notiflix.Notify.failure('Sorry, there are no images matching your search query. Please try again.');
+              Notiflix.Notify.failure('Sorry, there are no images matching your search query. Please try again.');
+              buttonHidden()
             } else {
               refs.formSearch.reset();
                createImage(images.hits);
                buttonShow();
                simpleLightbox.refresh();
-               Notiflix.Notify.success(`Hooray! We found ${images.totalHits} images.`);
+             Notiflix.Notify.success(`Hooray! We found ${images.totalHits} images.`);
+             
+             if (images.totalHits <= page * perPage) {
+              buttonHidden()
+              refs.formSearch.reset();
+             //Notiflix.Notify.success('We are sorry, but you have reached the end of search results.');
+          }
             };
         } catch (error) {
             clearAll();
@@ -58,11 +66,16 @@ async function onSearchBtn(e) {
 
 async function onClickNexpPage() {   
   try {
-      const images = await fetchImg(searchValue);
-    //console.log(images);
+    const images = await fetchImg(searchValue)
       createImage(images.hits)
       smoothScroll();
       simpleLightbox.refresh();
+    
+    if (images.totalHits <= (page - 1) * perPage) {
+              buttonHidden()
+              refs.formSearch.reset();
+             Notiflix.Report.info('We are sorry, but you have reached the end of search results.');
+          }
         
     } catch (error) {
        clearAll();

@@ -13,18 +13,10 @@ export async function fetchImg(searchValue) {
         orientation: 'horizontal',
         safesearch: 'true',
         per_page: 40,
-        page
+        page,
     });
-     
-    try {
         const images = await axios.get(`https://pixabay.com/api/?${searchParams}`).then(page += 1);
-        //console.log(images);
-        //console.log(images.data);
-        //console.log(images.data.hits);
         return images.data;
-    } catch (error) {
-    console.error(error);
-   }
 }
 
 export function resetPage() {
