@@ -48,7 +48,7 @@ async function onSearchBtn(e) {
                createImage(images.hits);
                buttonShow();
                simpleLightbox.refresh();
-             Notiflix.Notify.success(`Hooray! We found ${images.totalHits} images.`);
+               Notiflix.Notify.success(`Hooray! We found ${images.totalHits} images.`);
              
              if (images.totalHits <= page * perPage) {
               buttonHidden()
